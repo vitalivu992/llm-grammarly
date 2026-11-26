@@ -2,14 +2,18 @@
 # Add-ons, and Firefox Add-ons (AMO). Written for Gitea Actions, which reads
 # .github/workflows/ when the repo has no .gitea/workflows/. Also runs on GitHub Actions.
 #
-# Release: bump the version in src/manifest.json and package.json, then push a tag vX.Y.Z.
-# Manual run (Actions → release → Run workflow) builds; tick "publish" to also publish.
-# Setup and secrets: docs/development.md#releasing
+# Versions live in git tags (vX.Y.Z), not in the repo files. The workflow computes the
+# next version from the latest tag and stamps it into the manifest and package.json for
+# the build only. Once the build succeeds it tags the commit.
+#   push to master/main            -> patch bump (no publish)
+#   Run workflow (release action)  -> minor bump, patch reset; tick "publish" to submit
+# To re-publish an old version, re-run the publish jobs of that run: they download its
+# stored "packages" artifact. Setup and secrets: docs/development.md#releasing
 name: release
 
 on:
   push:
-    tags: ['v*']
+    branches: [master, main]
   workflow_dispatch:
     inputs:
       publish:
@@ -17,23 +21,43 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - name: Next version from latest tag
+        id: version
+        run: |
+          git fetch --tags --force
+          last=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
+          # No tag yet: start from the version in package.json.
+          last=${last:-v$(node -p "require('./package.json').version")}
+          IFS=. read -r major minor patch <<< "${last#v}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            next="$major.$((minor + 1)).0"
+          else
+            next="$major.$minor.$((patch + 1))"
+          fi
+          echo "$last -> v$next"
+          echo "version=$next" >> "$GITHUB_OUTPUT"
+          npm pkg set version="$next"
+          node -e "const f='src/manifest.json',m=JSON.parse(require('fs').readFileSync(f));m.version='$next';require('fs').writeFileSync(f,JSON.stringify(m,null,2)+'\\n')"
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
-      - name: Tag matches manifest version
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          v=$(node -p "require('./src/manifest.json').version")
-          [ "${GITHUB_REF_NAME#v}" = "$v" ] || { echo "Tag $GITHUB_REF_NAME does not match manifest version $v"; exit 1; }
       - run: npm run zip
       # v3: Gitea's artifact server implements the v3 protocol.
       - uses: actions/upload-artifact@v3
@@ -41,9 +65,21 @@ jobs:
           name: packages
           path: dist/
 
+  # Runs only after the build and tests pass.
+  tag:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git tag "v${{ needs.build.outputs.version }}" "$GITHUB_SHA"
+          git push origin "v${{ needs.build.outputs.version }}"
+
   chrome:
     needs: build
-    if: github.event_name == 'push' || github.event.inputs.publish == 'true'
+    if: github.event.inputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +100,7 @@ jobs:
 
   edge:
     needs: build
-    if: github.event_name == 'push' || github.event.inputs.publish == 'true'
+    if: github.event.inputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +119,7 @@ jobs:
 
   firefox:
     needs: build
-    if: github.event_name == 'push' || github.event.inputs.publish == 'true'
+    if: github.event.inputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

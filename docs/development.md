@@ -112,19 +112,25 @@ npm run icons          # src/icons/*.png
 
 ## Releasing
 
-1. Bump `version` in both `src/manifest.json` and `package.json`.
-2. `npm test && npm run test:live`
-3. `npm run zip` builds:
-   - `dist/penwright-<version>-chromium.zip` for the Chrome Web Store and Edge Add-ons;
-   - `dist/penwright-<version>-firefox.zip` (and `dist/firefox/`) for Firefox Add-ons.
-     It is the same code with a Firefox manifest: `background.scripts` instead of a
-     service worker, and a `browser_specific_settings.gecko` block (id
-     `penwright@lvsoftwares`, Firefox 142+, data collection `websiteContent`).
-4. Commit, then push a tag `v<version>`. The `release` workflow
-   (`.github/workflows/release.yml`, run by Gitea Actions or GitHub Actions) tests,
-   packages, and submits to all three stores. Each store is a separate job, so one
-   failing store does not block the others. A manual run builds only, unless you tick
-   **publish**.
+Versions live in git tags (`vX.Y.Z`); the `version` in `src/manifest.json` and
+`package.json` is stamped by CI at build time, so do not bump it by hand.
+
+- **Push to `master`/`main`**: the `release` workflow computes the next patch version from
+  the latest tag, tests and packages it, and, if that succeeds, tags the commit. It does
+  not publish.
+- **Release** (Actions → release → Run workflow): same, but bumps the minor version and
+  resets the patch. Tick **publish** to also submit to all three stores. Each store is a
+  separate job, so one failing store does not block the others.
+- **Re-publish**: re-run the publish jobs of the run that built the version. They download
+  that run's stored `packages` artifact, so nothing is rebuilt.
+
+`npm run zip` builds the packages locally:
+
+- `dist/penwright-<version>-chromium.zip` for the Chrome Web Store and Edge Add-ons;
+- `dist/penwright-<version>-firefox.zip` (and `dist/firefox/`) for Firefox Add-ons. It is
+  the same code with a Firefox manifest: `background.scripts` instead of a service worker,
+  and a `browser_specific_settings.gecko` block (id `penwright@lvsoftwares`, Firefox 142+,
+  data collection `websiteContent`).
 
 Use [privacy.md](privacy.md) as the privacy policy in every store, and declare that the
 extension sends user text to a user-chosen AI provider.
