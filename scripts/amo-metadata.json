@@ -1,0 +1,5 @@
+{
+  "categories": ["language-support"],
+  "summary": { "en-US": "Grammar fixes, tone and formality rewrites in any text field, powered by the LLM you choose." },
+  "version": { "license": "MIT" }
+}
