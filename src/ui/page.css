@@ -1,0 +1,117 @@
+/* Priority look for the options page and popup. */
+:root {
+  --band: #24170e; --paper: #efe7da; --panel: #fffdf9; --inset: #f7f1e7; --cream: #f4ead8;
+  --cream-h: #ecdcc0; --text: #2a1b10; --copy: #3b2a1e; --subtle: #6b5641; --muted: #8a7560;
+  --accent: #9a6b2f; --accent-h: #7d5522; --gold: #c9a063; --bar: #a8813f; --focus: #b8873f;
+  --line: #e3d8c6; --line-m: #efe6d8; --ctl: #c9b79c; --danger: #a63d2a; --ok: #4f7a3a;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1c130c; --panel: #22170f; --inset: #18100a; --cream: #3a2816; --cream-h: #4a331c;
+    --text: #efe3cf; --copy: #e3d5bd; --subtle: #c4ae8c; --muted: #a38d70; --accent: #d4ae6f;
+    --accent-h: #e6c68f; --focus: #d4ae6f; --line: #3d2b1d; --line-m: #2f2116; --ctl: #6b5440;
+    --danger: #e88a74; --ok: #8fc27a;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--text);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--accent); }
+a:hover { color: var(--accent-h); }
+code { background: var(--inset); border: 1px solid var(--line-m); padding: 0 4px; border-radius: 2px; font-size: 12px; }
+
+.band { background: var(--band); color: #f3e6cf; border-bottom: 2px solid var(--gold); }
+.band-inner { max-width: 760px; margin: 0 auto; padding: 22px 24px 18px; display: flex; align-items: end; gap: 16px; }
+.wordmark { font-weight: 700; font-size: 22px; letter-spacing: .01em; }
+.wordmark small {
+  display: block; color: var(--gold); font-size: 10px; font-weight: 600; letter-spacing: .26em;
+  text-transform: uppercase; margin-top: 2px;
+}
+.band .tag { margin-left: auto; color: #a8936f; font-size: 12px; }
+
+main { max-width: 760px; margin: 0 auto; padding: 24px; }
+.card {
+  background: var(--panel); border: 1px solid var(--line); border-top: 2px solid var(--gold);
+  border-radius: 3px; padding: 18px 20px 20px; margin-bottom: 18px;
+}
+.label, h2 {
+  margin: 0 0 14px; color: var(--accent); font-size: 11px; font-weight: 600;
+  letter-spacing: .22em; text-transform: uppercase;
+}
+.row { display: grid; grid-template-columns: 170px 1fr; gap: 6px 16px; align-items: center; margin-bottom: 12px; }
+.row > label { color: var(--subtle); font-size: 13px; }
+.row .hint { grid-column: 2; color: var(--muted); font-size: 12px; margin-top: -2px; }
+.inline { display: flex; gap: 8px; align-items: center; }
+.inline > input, .inline > select { flex: 1; min-width: 0; }
+
+input[type="text"], input[type="password"], input[type="url"], input[type="number"], select, textarea {
+  width: 100%; padding: 7px 9px; border: 1px solid var(--ctl); border-radius: 2px;
+  background: var(--panel); color: var(--text); font: inherit; font-size: 13px;
+}
+textarea { min-height: 80px; resize: vertical; font-family: ui-monospace, monospace; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 1px;
+}
+input[type="range"] { width: 100%; accent-color: var(--bar); }
+input[type="checkbox"] { accent-color: var(--bar); width: 16px; height: 16px; }
+
+.btn {
+  padding: 7px 13px; border-radius: 2px; border: 1px solid var(--ctl); background: var(--cream);
+  color: var(--text); font: 600 13px/1.2 system-ui, sans-serif; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { background: var(--cream-h); }
+.btn.primary { background: var(--band); border-color: var(--band); color: #f3e6cf; }
+.btn.primary:hover { background: #3a2816; }
+@media (prefers-color-scheme: dark) {
+  .btn.primary { background: var(--gold); border-color: var(--gold); color: var(--band); }
+}
+.btn:disabled { opacity: .55; cursor: default; }
+
+.callout {
+  background: var(--cream); border-left: 3px solid var(--gold); padding: 9px 12px; border-radius: 2px;
+  color: var(--copy); font-size: 13px; margin: 4px 0 14px;
+}
+.result { margin-top: 12px; padding: 9px 12px; border-left: 3px solid var(--ok); background: var(--inset); font-size: 13px; overflow-wrap: anywhere; }
+.result.bad { border-left-color: var(--danger); color: var(--danger); }
+.status { color: var(--ok); font-size: 12px; min-height: 18px; }
+.muted { color: var(--muted); }
+
+/* GitHub light theme (Settings → Appearance). Always light, ignores the OS dark mode. */
+:root[data-theme="github"] {
+  --band: #f6f8fa; --paper: #f6f8fa; --panel: #ffffff; --inset: #f6f8fa; --cream: #f6f8fa;
+  --cream-h: #eff2f5; --text: #1f2328; --copy: #1f2328; --subtle: #59636e; --muted: #59636e;
+  --accent: #0969da; --accent-h: #0550ae; --gold: #d0d7de; --bar: #0969da; --focus: #0969da;
+  --line: #d0d7de; --line-m: #d8dee4; --ctl: #d0d7de; --danger: #d1242f; --ok: #1a7f37;
+  color-scheme: light;
+}
+[data-theme="github"] body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+[data-theme="github"] code { border-radius: 6px; background: rgba(175,184,193,.2); border-color: transparent; }
+[data-theme="github"] .band { background: #fff; color: var(--text); border-bottom: 1px solid var(--line); }
+[data-theme="github"] .wordmark small { color: var(--muted); letter-spacing: 0; text-transform: none; font-weight: 400; font-size: 12px; }
+[data-theme="github"] .band .tag { color: var(--muted); }
+[data-theme="github"] .card { border-top-width: 1px; border-top-color: var(--line); border-radius: 6px; }
+[data-theme="github"] .label, [data-theme="github"] h2 {
+  color: var(--text); font-size: 14px; letter-spacing: 0; text-transform: none;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line-m);
+}
+[data-theme="github"] input[type="text"], [data-theme="github"] input[type="password"], [data-theme="github"] input[type="url"],
+[data-theme="github"] input[type="number"], [data-theme="github"] select, [data-theme="github"] textarea {
+  border-radius: 6px; background: #fff; box-shadow: inset 0 1px 0 rgba(208,215,222,.2);
+}
+[data-theme="github"] input:focus-visible, [data-theme="github"] select:focus-visible, [data-theme="github"] textarea:focus-visible {
+  outline: 2px solid #0969da; outline-offset: -1px; border-color: #0969da;
+}
+[data-theme="github"] .btn {
+  border-radius: 6px; border-color: rgba(31,35,40,.15); background: #f6f8fa; color: var(--text);
+  box-shadow: 0 1px 0 rgba(31,35,40,.04); font-weight: 500;
+}
+[data-theme="github"] .btn:hover { background: #eff2f5; }
+[data-theme="github"] .btn.primary { background: #1f883d; border-color: rgba(31,35,40,.15); color: #fff; }
+[data-theme="github"] .btn.primary:hover { background: #1a7f37; }
+[data-theme="github"] .callout { background: #ddf4ff; border: 1px solid rgba(84,174,255,.4); border-radius: 6px; }
+[data-theme="github"] .callout.warn { background: #fff8c5; border-color: rgba(212,167,44,.4); }
+[data-theme="github"] .result { border: 1px solid var(--line); border-left: 3px solid var(--ok); border-radius: 6px; }
+[data-theme="github"] .result.bad { border-left-color: var(--danger); }

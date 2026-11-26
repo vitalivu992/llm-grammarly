@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Penwright options</title>
+    <link rel="stylesheet" href="../ui/page.css" />
+  </head>
+  <body>
+    <header class="band">
+      <div class="band-inner">
+        <div class="wordmark">Penwright<small>Writing assistant</small></div>
+        <div class="tag">Your model, your key. Text goes only to the endpoint below.</div>
+      </div>
+    </header>
+    <main>
+      <section class="card">
+        <h2>Connection</h2>
+        <div class="row">
+          <label for="provider">Provider</label>
+          <select id="provider"></select>
+        </div>
+        <div id="providerNote" class="callout" hidden></div>
+        <div class="row">
+          <label for="baseUrl">Base URL</label>
+          <input id="baseUrl" type="url" placeholder="https://host/v1" spellcheck="false" />
+          <div class="hint">OpenAI-compatible root; <code>/chat/completions</code> is appended.</div>
+        </div>
+        <div class="row">
+          <label for="apiKey">API key</label>
+          <div class="inline">
+            <input id="apiKey" type="password" autocomplete="off" spellcheck="false" />
+            <button class="btn" id="toggleKey" type="button">Show</button>
+          </div>
+          <div class="hint" id="keyHint"></div>
+        </div>
+        <div class="row">
+          <label for="model">Model</label>
+          <div class="inline">
+            <input id="model" type="text" list="models" spellcheck="false" />
+            <button class="btn" id="loadModels" type="button">Load models</button>
+          </div>
+        </div>
+        <div class="row">
+          <label for="fallbackModel">Fallback model</label>
+          <input id="fallbackModel" type="text" list="models" spellcheck="false" placeholder="Optional" />
+          <div class="hint">Used when the main model fails, is rate limited, or returns bad output.</div>
+        </div>
+        <datalist id="models"></datalist>
+        <div class="inline">
+          <button class="btn primary" id="test" type="button">Test connection</button>
+          <span class="status" id="saved"></span>
+        </div>
+        <div id="testResult" class="result" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>Checking</h2>
+        <div class="row">
+          <label for="autoCheck">Check as I type</label>
+          <div><input id="autoCheck" type="checkbox" /></div>
+        </div>
+        <div class="row">
+          <label for="delayMs">Pause before checking</label>
+          <div class="inline"><input id="delayMs" type="number" min="300" max="10000" step="100" /><span class="muted">ms</span></div>
+        </div>
+        <div class="row">
+          <label for="minChars">Minimum length</label>
+          <div class="inline"><input id="minChars" type="number" min="1" max="500" /><span class="muted">characters</span></div>
+        </div>
+        <div class="row">
+          <label for="dialect">English variant</label>
+          <select id="dialect">
+            <option value="">Same as the text</option>
+            <option>American English</option>
+            <option>British English</option>
+            <option>Australian English</option>
+            <option>Canadian English</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Default tone</h2>
+        <div class="row">
+          <label for="tone">Tone</label>
+          <select id="tone"></select>
+        </div>
+        <div class="row">
+          <label for="formality">Formality</label>
+          <div>
+            <input id="formality" type="range" min="1" max="5" step="1" />
+            <div class="muted" id="formalityLabel"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Appearance</h2>
+        <div class="row">
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="priority">Priority (espresso and gold, follows dark mode)</option>
+            <option value="github">GitHub light</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Sites</h2>
+        <div class="row">
+          <label for="disabledSites">Disabled on</label>
+          <textarea id="disabledSites" placeholder="one hostname per line, e.g. mail.example.com"></textarea>
+          <div class="hint">Fields marked <code>data-gramm="false"</code>, passwords and code editors are always skipped.</div>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>
