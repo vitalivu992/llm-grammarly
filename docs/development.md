@@ -121,8 +121,9 @@ Versions live in git tags (`vX.Y.Z`); the `version` in `src/manifest.json` and
 - **Release** (Actions → release → Run workflow): same, but bumps the minor version and
   resets the patch. Tick **publish** to also submit to all three stores. Each store is a
   separate job, so one failing store does not block the others.
-- **Re-publish**: re-run the publish jobs of the run that built the version. They download
-  that run's stored `packages` artifact, so nothing is rebuilt.
+- **Re-publish**: re-run the publish jobs of the run that built the version. Each job
+  rebuilds the package for that run's version from the same commit; it does not use the
+  `packages` artifact, which Gitea only exposes to jobs of the attempt that uploaded it.
 
 `npm run zip` builds the packages locally:
 

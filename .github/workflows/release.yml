@@ -7,8 +7,10 @@
 # the build only. Once the build succeeds it tags the commit.
 #   push to master/main            -> patch bump (no publish)
 #   Run workflow (release action)  -> minor bump, patch reset; tick "publish" to submit
-# To re-publish an old version, re-run the publish jobs of that run: they download its
-# stored "packages" artifact. Setup and secrets: docs/development.md#releasing
+# Each publish job rebuilds the package for that version instead of downloading the build
+# artifact: Gitea scopes artifacts to a run attempt, so a re-run of only the publish jobs
+# cannot see the artifact uploaded by the original attempt. To re-publish a version,
+# re-run the publish jobs of its run. Setup and secrets: docs/development.md#releasing
 name: release
 
 on:
@@ -53,8 +55,7 @@ jobs:
           fi
           echo "$last -> v$next"
           echo "version=$next" >> "$GITHUB_OUTPUT"
-          npm pkg set version="$next"
-          node -e "const f='src/manifest.json',m=JSON.parse(require('fs').readFileSync(f));m.version='$next';require('fs').writeFileSync(f,JSON.stringify(m,null,2)+'\\n')"
+          node scripts/set-version.mjs "$next"
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
@@ -85,10 +86,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: actions/download-artifact@v3
-        with:
-          name: packages
-          path: dist/
+          cache: npm
+      - run: npm ci
+      - run: node scripts/set-version.mjs "${{ needs.build.outputs.version }}"
+      - run: npm run zip
       - run: node scripts/publish.mjs chrome dist/penwright-*-chromium.zip
         env:
           CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
@@ -105,10 +106,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: actions/download-artifact@v3
-        with:
-          name: packages
-          path: dist/
+          cache: npm
+      - run: npm ci
+      - run: node scripts/set-version.mjs "${{ needs.build.outputs.version }}"
+      - run: npm run zip
       - run: node scripts/publish.mjs edge dist/penwright-*-chromium.zip
         env:
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
@@ -125,10 +126,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - uses: actions/download-artifact@v3
-        with:
-          name: packages
-          path: dist/
+      - run: node scripts/set-version.mjs "${{ needs.build.outputs.version }}"
+      - run: npm run zip
       # Submits the listed version for review and exits (approval is not awaited).
       # amo-metadata.json is only needed the first time, when AMO creates the listing.
       - run: >-
