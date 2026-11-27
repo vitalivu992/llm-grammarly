@@ -4,9 +4,9 @@
 #
 # Versions live in git tags (vX.Y.Z), not in the repo files. The workflow computes the
 # next version from the latest tag and stamps it into the manifest and package.json for
-# the build only. Once the build succeeds it tags the commit.
-#   push to master/main            -> patch bump (no publish)
-#   Run workflow (release action)  -> minor bump, patch reset; tick "publish" to submit
+# the build only. Once the build succeeds it tags the commit and publishes to all stores.
+#   push to master/main            -> patch bump
+#   Run workflow (release action)  -> minor bump, patch reset (the "publish" box is ignored)
 # Each publish job rebuilds the package for that version instead of downloading the build
 # artifact: Gitea scopes artifacts to a run attempt, so a re-run of only the publish jobs
 # cannot see the artifact uploaded by the original attempt. To re-publish a version,

@@ -116,11 +116,11 @@ Versions live in git tags (`vX.Y.Z`); the `version` in `src/manifest.json` and
 `package.json` is stamped by CI at build time, so do not bump it by hand.
 
 - **Push to `master`/`main`**: the `release` workflow computes the next patch version from
-  the latest tag, tests and packages it, and, if that succeeds, tags the commit. It does
-  not publish.
+  the latest tag, tests and packages it, and, if that succeeds, tags the commit and
+  submits it to all three stores. Each store is a separate job, so one failing store does
+  not block the others.
 - **Release** (Actions → release → Run workflow): same, but bumps the minor version and
-  resets the patch. Tick **publish** to also submit to all three stores. Each store is a
-  separate job, so one failing store does not block the others.
+  resets the patch. The **publish** checkbox is ignored; every run publishes.
 - **Re-publish**: re-run the publish jobs of the run that built the version. Each job
   rebuilds the package for that run's version from the same commit; it does not use the
   `packages` artifact, which Gitea only exposes to jobs of the attempt that uploaded it.
